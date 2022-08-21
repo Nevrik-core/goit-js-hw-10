@@ -5,53 +5,78 @@ import Notiflix from 'notiflix';
 
 const form = document.querySelector('#search-box');
 const countryList = document.querySelector('.country-list');
-const countryInfo = document.querySelector('.country-info');
+
 
 const DEBOUNCE_DELAY = 300;
 
 form.addEventListener('input', debounce(onTypeCountryName, DEBOUNCE_DELAY));
 
+
+
+
 function onTypeCountryName(e) {
-    const city = e.target.value.trim();
-    console.log(city);
-    fetchCountries(city).then(data => {
-        if (data.length > 10) {
-           Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
-        } else if (data.length === 1) {
-            console.log(data.length);
-            createInfoMarkup(data[0]);
-        }
-        
-    });
-        
-}
+  const country = e.target.value.trim();
+  
 
-function createInfoMarkup(obj) {
-    
-    const name = obj.name.official
-    const capital = obj.capital[0];
-    const flagIcon = obj.flag;
-    const population = obj.population;
-    const languages = Object.values(obj.languages).map(el => el).join(', ');
-    const flag = obj.flags.svg;
-    console.log(obj);
-    
-    countryInfo.innerHTML = `<div class="main">
-        <img src="${flag}" alt="${name}${flagIcon}" height="30" />
-        <h1>${name}</h1>
-      </div>
-      <ul>
-        <li>
-          <b>Capital:</b>
-          ${capital}
-        </li>
-        <li><b>Population:</b> ${population}</li>
-        <li><b>Languages:</b> ${languages}</li>
-      </ul>`
+  if (!country || country === ``) {
+    countryList.innerHTML = ``;
+  }
+    console.log(country);
+    fetchCountries(country).then(data => {
+       if(data.status ===404){
+         Notiflix.Notify.failure(`Oops, there is no country with that name`);
+  }
+            createMarkup(data);
+        
+        
+    }).catch(error => {
+    Notiflix.Notify.failure(error)
+});
+        
 }
 
 
 
 
 
+function createMarkup(recivedCountryList) {
+  console.log(recivedCountryList.length);
 
+  if (recivedCountryList.length > 10) {
+    Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
+    return;
+  }
+
+  if (recivedCountryList.length < 10 && recivedCountryList.length >= 2) {
+    countryList.innerHTML = ``;
+
+     
+    const renderList = recivedCountryList
+      .map(country =>
+        `<li>
+             <img src="${country.flags.svg}" alt="${country.flag}" width ="20">
+             <span>${country.name.official}</span></li>`).join('');
+
+    countryList.insertAdjacentHTML(`afterbegin`, renderList);
+  }
+  if (recivedCountryList.length === 1) {
+    countryList.innerHTML = ``;
+
+    const renderOneCountry = recivedCountryList
+      .map(country => {
+        const languages = Object.values(country.languages).map(el => el).join(', ');
+        return `
+ <li>
+ <img src="${country.flags.svg}" alt="${country.flag}" width ="50">
+ <span> ${country.name.official}</span>
+ <p><b>Capital:</b> ${country.capital}</p>
+ <p><b>Population:</b> ${country.population}</p>
+ <p><b>Languages:</b> ${languages}</p>
+ </li>
+ `
+      })
+      .join('');
+
+    countryList.insertAdjacentHTML(`afterbegin`, renderOneCountry);
+  }
+}

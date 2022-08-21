@@ -19,16 +19,12 @@ body {
   margin-bottom: 16px;
 }
 
-.main {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
+
 ul {
   list-style-type: none;
   padding-left: 15px;
 }
- li {
-   margin-top: 10px;
-   
- }
+
+img {
+  margin-right: 5px;
+}
