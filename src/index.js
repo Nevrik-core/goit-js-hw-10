@@ -20,17 +20,21 @@ function onTypeCountryName(e) {
 
   if (!country || country === ``) {
     countryList.innerHTML = ``;
+    return;
   }
     console.log(country);
     fetchCountries(country).then(data => {
-       if(data.status ===404){
+      if (data.status === 404) {
+         countryList.innerHTML = ``;
          Notiflix.Notify.failure(`Oops, there is no country with that name`);
   }
             createMarkup(data);
         
         
     }).catch(error => {
-    Notiflix.Notify.failure(error)
+      
+      Notiflix.Notify.failure(error);
+      
 });
         
 }
